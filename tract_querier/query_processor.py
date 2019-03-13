@@ -249,9 +249,9 @@ class EvaluateQueries(ast.NodeVisitor, metaclass=DocStringInheritor):
             isinstance(node.func, ast.Name) and
             len(node.args) == 1 and
             len(node.args) == 1 and
-            node.starargs is None and
-            node.keywords == [] and
-            node.kwargs is None
+            getattr(node, 'starargs', None) is None and
+            getattr(node, 'keywords', []) == [] and
+            getattr(node, 'kwargs', None) is None
         ):
             if (node.func.id.lower() == 'only'):
                 query_info = self.visit(node.args[0])
