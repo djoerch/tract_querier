@@ -763,7 +763,7 @@ class RewritePreprocess(ast.NodeTransformer):
                         'Imported file not found: %s' % file_name
                     )
             imported_modules = [
-                ast.parse(file(module_name).read(), filename=module_name)
+                ast.parse(open(module_name).read(), filename=module_name)
                 for module_name in module_names
             ]
         except SyntaxError:

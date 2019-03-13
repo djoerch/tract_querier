@@ -106,7 +106,7 @@ def main():
 
     try:
         if os.path.exists(options.queries_string):
-            query_script = file(options.queries_string).read()
+            query_script = open(options.queries_string).read()
             query_filename = options.queries_string
         else:
             found = False
@@ -116,7 +116,7 @@ def main():
                     found = True
                     break
             if found:
-                query_script = file(file_).read()
+                query_script = open(file_).read()
                 query_filename = file_
             else:
                 query_script = options.queries_string
