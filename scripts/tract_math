@@ -65,7 +65,7 @@ def main():
     Available operations:
     """
 
-    operations_names = operations.keys()
+    operations_names = list(operations.keys())
     operations_names.sort()
     for f in operations_names:
         usage += '\t%s %s\n' % (f, operations[f].help_text)
@@ -103,13 +103,13 @@ def main():
                 # filename, tractography instance) to tractography list.
                 tractography.append((f.name, tractography_from_files(f.name)))
         except IOError as e:
-            print >>sys.stderr, "Error reading file ", f.name, "(%s)" % repr(e)
+            print("Error reading file ", f.name, "(%s)" % repr(e), file=sys.stderr)
 
     if args.operation in operations:
         try:
             operations[args.operation](
                 tractography, *args.operation_parameters)
-        except TractMathWrongArgumentsError, e:
+        except TractMathWrongArgumentsError as e:
             traceback.print_exc(file=sys.stdout)
             parser.error('\n\n' + str(e))
         except TypeError:
