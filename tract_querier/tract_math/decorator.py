@@ -1,7 +1,7 @@
 import inspect
-from itertools import izip, repeat
+from itertools import repeat
 from collections import Mapping, Iterable
-import StringIO
+import io
 import csv
 from os import path
 
@@ -43,7 +43,7 @@ def set_dictionary_from_use_filenames_as_index(
     else:
         results.setdefault('tract file #', []).append(
             default_tractography_name)
-    for meas_k, meas_v in measurement_dict.iteritems():
+    for meas_k, meas_v in measurement_dict.items():
         results.setdefault(meas_k, []).append(meas_v)
     return results
 
@@ -86,7 +86,7 @@ def tract_math_operation(help_text, needs_one_tract=True):
         base_args = args
         optional_args = list()
         for index in range(len(args)):
-            if isinstance(args[index], basestring) and args[index].startswith("--"):
+            if isinstance(args[index], str) and args[index].startswith("--"):
                 base_args = args[:index]
                 optional_args = args[index:]
                 break
@@ -165,7 +165,7 @@ def process_output(output, file_output=None):
         return
 
     if file_output is not None and path.exists(file_output):
-        in_key = raw_input("Overwrite file %s (y/N)? " % file_output)
+        in_key = input("Overwrite file %s (y/N)? " % file_output)
         if in_key.lower().strip() != 'y':
             return
 
@@ -180,7 +180,7 @@ def process_output(output, file_output=None):
         nibabel.save(output, file_output)
     elif isinstance(output, Mapping):
         if file_output is None:
-            f = StringIO.StringIO()
+            f = io.StringIO()
             dialect = 'excel-tab'
         else:
             if path.splitext(file_output)[-1] == '.txt':
@@ -188,24 +188,24 @@ def process_output(output, file_output=None):
             else:
                 dialect = 'excel'
             f = open(file_output, 'w')
-        writer = csv.DictWriter(f, output.keys(), dialect=dialect)
+        writer = csv.DictWriter(f, list(output.keys()), dialect=dialect)
 
         if hasattr(writer, 'writeheader'):
             writer.writeheader()
         else:
-            header = dict(zip(writer.fieldnames, writer.fieldnames))
+            header = dict(list(zip(writer.fieldnames, writer.fieldnames)))
             writer.writerow(header)
 
-        first_value = output.values()[0]
+        first_value = list(output.values())[0]
         if (
             not isinstance(first_value, str) and
             isinstance(first_value, Iterable)
         ):
             rows = (
-                dict(zip(*row))
-                for row in izip(
-                    repeat(output.keys(), len(first_value)),
-                    izip(*output.values())
+                dict(list(zip(*row)))
+                for row in zip(
+                    repeat(list(output.keys()), len(first_value)),
+                    zip(*list(output.values()))
                 )
             )
             writer.writerows(rows)
@@ -213,7 +213,7 @@ def process_output(output, file_output=None):
             writer.writerow(output)
 
         if file_output is None:
-            print f.getvalue()
+            print(f.getvalue())
 
 
 class TractMathWrongArgumentsError(TypeError):

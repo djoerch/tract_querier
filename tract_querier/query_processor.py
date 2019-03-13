@@ -105,7 +105,7 @@ class FiberQueryInfo(object):
         return operation
 
 
-class EvaluateQueries(ast.NodeVisitor):
+class EvaluateQueries(ast.NodeVisitor, metaclass=DocStringInheritor):
 
     r"""
     This class implements the parser to process
@@ -130,7 +130,6 @@ class EvaluateQueries(ast.NodeVisitor):
         the tracts resulting from this query
 
     """
-    __metaclass__ = DocStringInheritor
 
     relative_terms = [
         'anterior_of',
@@ -240,7 +239,7 @@ class EvaluateQueries(ast.NodeVisitor):
 
     def visit_Str(self, node):
         query_info = FiberQueryInfo()
-        for name in fnmatch.filter(self.evaluated_queries_info.keys(), node.s):
+        for name in fnmatch.filter(list(self.evaluated_queries_info.keys()), node.s):
             query_info.update(self.evaluated_queries_info[name])
         return query_info
 
@@ -364,7 +363,7 @@ class EvaluateQueries(ast.NodeVisitor):
         try:
             bounding_box = (
                 self.tractography_spatial_indexing.
-                label_bounding_boxes[labels_generator.next()]
+                label_bounding_boxes[next(labels_generator)]
             )
             for label in labels_generator:
                 bounding_box = bounding_box.union(
@@ -446,7 +445,7 @@ class EvaluateQueries(ast.NodeVisitor):
 
         queries_to_evaluate = self.process_assignment(node)
 
-        for query_name, value_node in queries_to_evaluate.items():
+        for query_name, value_node in list(queries_to_evaluate.items()):
             self.queries_to_save.add(query_name)
             self.evaluated_queries_info[query_name] = self.visit(value_node)
 
@@ -457,7 +456,7 @@ class EvaluateQueries(ast.NodeVisitor):
 
         queries_to_evaluate = self.process_assignment(node)
 
-        for query_name, value_node in queries_to_evaluate.items():
+        for query_name, value_node in list(queries_to_evaluate.items()):
             query_info = self.visit(value_node)
             self.evaluated_queries_info[query_name] = query_info
 
@@ -592,7 +591,7 @@ class EvaluateQueries(ast.NodeVisitor):
 
     def visit_Expr(self, node):
         if isinstance(node.value, ast.Name):
-            if node.value.id in self.evaluated_queries_info.keys():
+            if node.value.id in list(self.evaluated_queries_info.keys()):
                 self.queries_to_save.add(node.value.id)
             else:
                 raise TractQuerierSyntaxError(
@@ -615,7 +614,7 @@ class EvaluateQueries(ast.NodeVisitor):
         iter_ = node.iter
         if isinstance(iter_, ast.Str):
             list_items = fnmatch.filter(
-                self.evaluated_queries_info.keys(), iter_.s.lower())
+                list(self.evaluated_queries_info.keys()), iter_.s.lower())
         elif isinstance(iter_, ast.List):
             list_items = []
             for item in iter_.elts:
@@ -852,7 +851,7 @@ def queries_syntax_check(query_file_body):
 
 def labels_for_tracts(crossing_tracts_labels):
     crossing_labels_tracts = {}
-    for i, f in crossing_tracts_labels.items():
+    for i, f in list(crossing_tracts_labels.items()):
         for l in f:
             if l in crossing_labels_tracts:
                 crossing_labels_tracts[l].add(i)

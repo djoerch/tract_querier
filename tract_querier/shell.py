@@ -151,13 +151,13 @@ class TractQuerierCmd(cmd.Cmd):
             )
             self.save_query_visitor.visit(ast.Module(body=body))
         except SyntaxError as e:
-            print(e.value)
+            print((e.value))
         except TractQuerierSyntaxError as e:
-            print(e.value)
+            print((e.value))
         except TractQuerierLabelNotFound as e:
-            print(e.value)
+            print((e.value))
         except KeyError as e:
-            print("Query name not recognized: %s" % e)
+            print(("Query name not recognized: %s" % e))
 
         return False
 
@@ -194,18 +194,18 @@ class TractQuerierCmd(cmd.Cmd):
             self.querier.visit(body)
             self.save_query_visitor.visit(body)
         except SyntaxError as e:
-            print(e.value)
+            print((e.value))
         except TractQuerierSyntaxError as e:
-            print(e.value)
+            print((e.value))
         except TractQuerierLabelNotFound as e:
-            print(e.value)
+            print((e.value))
 
         return False
 
     @safe_method
     def names(self):
         names = []
-        for query in self.querier.evaluated_queries_info.keys():
+        for query in list(self.querier.evaluated_queries_info.keys()):
             if query.endswith('_left'):
                 names += [
                     query.replace('_left', '.left'),
@@ -242,7 +242,7 @@ class TractQuerierCmd(cmd.Cmd):
         return self.completenames(text, *ignored)
 
     def do_EOF(self, line):
-        s = raw_input("\nSure you want to leave (y/n)? ")
+        s = input("\nSure you want to leave (y/n)? ")
         if s.lower() == 'y':
             return True
         else:

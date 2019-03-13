@@ -27,7 +27,7 @@ except ImportError:  # Python 2.6 fix
 def scalars(optional_flags, tractography):
     return {
         'scalar attributes':
-        tractography.tracts_data().keys()
+        list(tractography.tracts_data().keys())
     }
 
 
@@ -77,18 +77,18 @@ def scalar_compute_most(optional_flags, tractographies, scalar):
     if scalar == 'all':
         get_reference_tract = tractographies[0][1]
         scalars = [
-            s for s in get_reference_tract.tracts_data().keys() if not s.startswith("tensor")]
+            s for s in list(get_reference_tract.tracts_data().keys()) if not s.startswith("tensor")]
     else:
         scalars = [scalar]
     results = OrderedDict()
     try:
         for default_tract_name, (tract_name, tract) in enumerate(tractographies):
             # First_decorate_tract
-            if 'tensor1' in tract.tracts_data().keys():
+            if 'tensor1' in list(tract.tracts_data().keys()):
                 tract = tensor_operations.decorate_tract_with_measures(tract, 'tensor1')
                 scalars.extend(
                     ['FA_tensor1', 'MD_tensor1', 'AX_tensor1', 'RD_tensor1', 'GA_tensor1'])
-            if 'tensor2' in tract.tracts_data().keys():
+            if 'tensor2' in list(tract.tracts_data().keys()):
                 tract = tensor_operations.decorate_tract_with_measures(tract, 'tensor2')
                 scalars.extend(
                     ['FA_tensor2', 'MD_tensor2', 'AX_tensor2', 'RD_tensor2', 'GA_tensor2'])
@@ -191,7 +191,7 @@ def tract_dump(optional_flags, tractography):
 
     data = tractography.tracts_data()
 
-    for k in data.keys():
+    for k in list(data.keys()):
         res[k] = []
 
     for i, tract in enumerate(tractography.tracts()):
@@ -200,7 +200,7 @@ def tract_dump(optional_flags, tractography):
         res['y'] += list(tract[:, 1])
         res['z'] += list(tract[:, 2])
 
-        for k in data.keys():
+        for k in list(data.keys()):
             res[k] += list(numpy.asarray(data[k][i]).squeeze())
 
     return res
@@ -232,7 +232,7 @@ def tract_point_distance_min_max(optional_flags, tractography):
         dist = tract_operations.tract_length(tract)
         dist_min[i] = dist.min()
         dist_max[i] = dist.max()
-    print dist_min.min(), dist_max.max()
+    print(dist_min.min(), dist_max.max())
 
 
 @tract_math_operation('<points per tract> <tractography_file_output>: subsamples tracts to a maximum number of points')
@@ -261,7 +261,7 @@ def tract_remove_short_tracts(optional_flags, tractography, min_tract_length, fi
     selected_tracts = [tracts[i] for i in tract_ix_to_keep]
 
     selected_data = dict()
-    for key, item in data.items():
+    for key, item in list(data.items()):
         if len(item) == len(tracts):
             selected_data_items = [item[i] for i in tract_ix_to_keep]
             selected_data[key] = selected_data_items
@@ -370,7 +370,7 @@ def tract_affine_transform(optional_flags,
     transform = numpy.loadtxt(transform_file)
     invert = bool(invert)
     if invert:
-        print "Inverting transform"
+        print("Inverting transform")
         transform = numpy.linalg.inv(transform)
     orig_points = numpy.vstack(tractography.tracts())
     new_points = nibabel.affines.apply_affine(transform, orig_points)
@@ -412,7 +412,7 @@ def tract_tract_confidence(optional_flags, tractography, bins, qty, file_output=
     length_histogram_counts, length_histogram_bins = numpy.histogram(
         lengths, normed=True, bins=bins)
 
-    for i in xrange(1, bins):
+    for i in range(1, bins):
         tract_log_prob = []
         indices_bin = ((length_histogram_bins[
                        i - 1] < lengths) * (lengths < length_histogram_bins[i])).nonzero()[0]
@@ -705,7 +705,7 @@ def tract_prototype_median(optional_flags, tractography, file_output=None):
 
     selected_tracts = [tracts[prototype_ix]]
     selected_data = dict()
-    for key, item in data.items():
+    for key, item in list(data.items()):
         if len(item) == len(tracts):
             selected_data_items = [item[prototype_ix]]
             selected_data[key] = selected_data_items
@@ -760,7 +760,7 @@ def tract_bhattacharyya_coefficient(optional_flags, tractography, resolution, *o
         [('tract file', [])]
         + [
             ('bhattacharyya %s value' % coord[i], [])
-            for i in xrange(3)
+            for i in range(3)
         ]
     )
 
@@ -786,14 +786,14 @@ def tract_bhattacharyya_coefficient(optional_flags, tractography, resolution, *o
     hists_tract = [
         numpy.histogram(tractography_points[:, i], bins=bins[
                         i], density=True, range=(mn_[i], mx_[i]))[0]
-        for i in xrange(3)
+        for i in range(3)
     ]
 
     for tract, tract_points in zip(other_tracts, other_tracts_points):
         hists_other_tract = [
             numpy.histogram(
                 tract_points[:, i], bins=bins[i], density=True, range=(mn_[i], mx_[i]))[0]
-            for i in xrange(3)
+            for i in range(3)
         ]
 
         distances = [
@@ -801,9 +801,9 @@ def tract_bhattacharyya_coefficient(optional_flags, tractography, resolution, *o
                 hists_other_tract[i] * hists_tract[i] /
                 (hists_other_tract[i].sum() * hists_tract[i].sum())
             ).sum()
-            for i in xrange(3)
+            for i in range(3)
         ]
-        for i in xrange(3):
+        for i in range(3):
             result['tract file'].append(tract)
             result['bhattacharyya %s value' % coord[i]].append(
                 numpy.nan_to_num(distances[i]))
@@ -823,7 +823,7 @@ def tract_flip_endpoints_in_label(
     tracts_ijk = tract_operations.each_tract_in_ijk(image, tractography)
     image_data = image.get_data()
     label = int(label)
-    print image_data.sum()
+    print(image_data.sum())
     needs_flip = []
     for ix, tract in enumerate(tracts_ijk):
         i, j, k = numpy.round(tract[0]).astype(int)
@@ -840,7 +840,7 @@ def tract_flip_endpoints_in_label(
 
     tracts = list(tractography.tracts())
     tracts_data = tractography.tracts_data()
-    print "Flipped %d tracts" % len(needs_flip)
+    print("Flipped %d tracts" % len(needs_flip))
     for i in needs_flip:
         tracts[i] = tracts[i][::-1]
         for data_key, data_points in tracts_data:

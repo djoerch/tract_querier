@@ -32,7 +32,7 @@ class Tractography:
         self._subsampled_data = None
 
         self._extra_args = []
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             if k[0] != '_':
                 setattr(self, k, v)
                 self._extra_args.append(k)
@@ -88,7 +88,7 @@ class Tractography:
                     raise ValueError('First argument is not a list of tracts')
 
                 if tracts_data is not None and hasattr(tracts_data, 'iteritems'):
-                    for k, v in tracts_data.iteritems():
+                    for k, v in tracts_data.items():
                         if isinstance(v, str):
                             continue
                         if len(v) != len(tracts):
@@ -108,16 +108,16 @@ class Tractography:
                                         k, i)
                                 )
         if appending:
-            if tracts_data.keys() != self._tracts_data.keys():
+            if list(tracts_data.keys()) != list(self._tracts_data.keys()):
                 raise ValueError("Tract data to append not compatible")
             if any(
                 self._tracts_data[k][0].shape[1] != v[0].shape[1]
-                for k, v in tracts_data.iteritems()
+                for k, v in tracts_data.items()
                 if not isinstance(v, str)
             ):
                 raise ValueError("Tract data to append not compatible")
 
-            for k, v in tracts_data.iteritems():
+            for k, v in tracts_data.items():
                 self._tracts_data[k] += v
 
             self._tracts += tracts
@@ -159,7 +159,7 @@ class Tractography:
         for k in self._tracts_data:
             self._subsampled_data[k] = []
 
-        for i in xrange(len(self._tracts)):
+        for i in range(len(self._tracts)):
             f = self._tracts[i]
             s = np.linspace(
                 0,
@@ -169,7 +169,7 @@ class Tractography:
 
             self._subsampled_tracts.append(f[s, :])
 
-            for k, v in self._tracts_data.iteritems():
+            for k, v in self._tracts_data.items():
                 if not isinstance(v, str):
                     self._subsampled_data[k].append(v[i][s])
 
@@ -194,14 +194,11 @@ class Tractography:
             tracts = self._tracts
             data = self._data
 
-        self._tract_map = filter(
-            lambda i: criterium(tracts),
-            xrange(len(tracts))
-        )
+        self._tract_map = [i for i in range(len(tracts)) if criterium(tracts)]
 
         self._filtered_tracts = [tracts[i] for i in self._tract_map]
         self._filtered_data = {}
-        for k, v in data.iteritems():
+        for k, v in data.items():
             self._filtered_data[k] = [
                 v[i] for i in self._tract_map
             ]
@@ -305,7 +302,7 @@ class Tractography:
        """
         data = [
             np.ones((len(self.original_tracts()[i]), 1)) * array[i]
-            for i in xrange(len(self.tracts()))
+            for i in range(len(self.tracts()))
         ]
 
         self.original_tracts_data()[name] = data

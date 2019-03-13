@@ -11,7 +11,7 @@ class DocStringInheritor(type):
                 if doc:
                     clsdict['__doc__'] = doc
                     break
-        for attr, attribute in clsdict.items():
+        for attr, attribute in list(clsdict.items()):
             if not attribute.__doc__:
                 for mro_cls in (mro_cls for base in bases for mro_cls in base.mro()
                                 if hasattr(mro_cls, attr)):
@@ -33,8 +33,8 @@ class Test(unittest.TestCase):
             def frobnicate(self):
                 pass
 
-        class Bar(Foo):
-            __metaclass__ = DocStringInheritor
+        class Bar(Foo, metaclass=DocStringInheritor):
+            pass
         self.assertEqual(Bar.__doc__, object.__doc__)
         self.assertEqual(Bar().__doc__, object.__doc__)
         self.assertEqual(Bar.frobnicate.__doc__, None)
@@ -46,8 +46,8 @@ class Test(unittest.TestCase):
 
             def frobnicate(self):
                 'Frobnicate this gonk.'
-        class Bar(Foo):
-            __metaclass__ = DocStringInheritor
+        class Bar(Foo, metaclass=DocStringInheritor):
+            pass
         self.assertEqual(Foo.__doc__, 'Foo')
         self.assertEqual(Foo().__doc__, 'Foo')
         self.assertEqual(Bar.__doc__, 'Foo')
@@ -64,8 +64,8 @@ class Test(unittest.TestCase):
         class Bar(Foo):
             pass
 
-        class Baz(Bar):
-            __metaclass__ = DocStringInheritor
+        class Baz(Bar, metaclass=DocStringInheritor):
+            pass
         self.assertEqual(Baz.__doc__, 'Foo')
         self.assertEqual(Baz().__doc__, 'Foo')
         self.assertEqual(Baz.frobnicate.__doc__, 'Frobnicate this gonk.')
@@ -77,8 +77,8 @@ class Test(unittest.TestCase):
 
             def frobnicate(self):
                 'Frobnicate this gonk.'
-        class Bar(Foo):
-            __metaclass__ = DocStringInheritor
+        class Bar(Foo, metaclass=DocStringInheritor):
+            pass
 
         class Baz(Bar):
             pass

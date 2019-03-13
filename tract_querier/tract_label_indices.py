@@ -177,7 +177,7 @@ def compute_label_crossings(tract_cumulative_lengths, point_labels, threshold):
         tracts_labels[i] = set(np.where(percentages >= (threshold / 100.))[0])
 
     labels_tracts = {}
-    for i, f in tracts_labels.items():
+    for i, f in list(tracts_labels.items()):
         for l in f:
             if l in labels_tracts:
                 labels_tracts[l].add(i)
@@ -195,7 +195,7 @@ def compute_label_endings(tract_cumulative_lengths, point_labels):
                                start]), int(point_labels[end - 1])))
 
     labels_tracts = {}
-    for i, f in tracts_labels.items():
+    for i, f in list(tracts_labels.items()):
         for l in f:
             if l in labels_tracts:
                 labels_tracts[l].add(i)
@@ -220,7 +220,7 @@ def compute_label_endings_start_end(tract_cumulative_lengths, point_labels):
         (tracts_labels_start, labels_tracts_start),
         (tracts_labels_end, labels_tracts_end)
     ):
-        for i, l in tracts_labels.items():
+        for i, l in list(tracts_labels.items()):
             if l in labels_tracts:
                 labels_tracts[l].add(i)
             else:
