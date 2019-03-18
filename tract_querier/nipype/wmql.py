@@ -57,8 +57,9 @@ class TractQuerier(CommandLine):
         outputs = self._outputs().get()
         outputs['output_queries'] = glob.glob(os.path.join(os.getcwd(),
                                                            self.inputs.out_prefix +
-                                                           '*.vtk')
-                                              )
+                                                           '*.trk')
+	                                              )
+        print(outputs)
         return outputs
 
 
